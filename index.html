@@ -353,7 +353,7 @@
     .region-row.nearest .region-name::after { content: "GPS 우선"; display: inline-block; margin-left: 6px; color: var(--blue-600); font-size: 8px; font-weight: 900; vertical-align: 2px; }
     .region-card-head { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; align-items: center; gap: 8px; margin-bottom: 10px; }
     .region-name { color: var(--navy-900); font-size: 16px; font-weight: 900; }
-    .weather-label { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 4px 7px; overflow: hidden; border: 1px solid #cfe4ef; border-radius: 99px; background: #eef8fc; color: #23566e; font-size: 10px; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
+    .weather-label { display: inline-flex; justify-self: start; align-items: center; gap: 4px; width: fit-content; max-width: 100%; padding: 4px 7px; overflow: hidden; border: 1px solid #cfe4ef; border-radius: 99px; background: #eef8fc; color: #23566e; font-size: 10px; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
     .temp-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
     .temp-box { min-width: 0; padding: 10px 9px; border-radius: 10px; }
     .temp-box span { display: block; margin-bottom: 3px; font-size: 9px; font-weight: 800; }
@@ -363,7 +363,8 @@
     .region-row[data-risk="danger"] .temp-box.feels { background: var(--red-50); color: var(--red-600); }
     .temp-gap { margin: -2px 0 9px; padding: 6px 8px; border-radius: 8px; background: #f7f9fa; color: var(--muted); font-size: 10px; text-align: left; }
     .temp-gap b { color: #d95519; }
-    .environment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(48px, 70px)); justify-content: start; gap: 5px; margin-top: 8px; }
+    .environment-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 5px; margin-top: 8px; }
+    .environment-grid.no-wave { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .environment-item { min-width: 0; padding: 5px 4px; border-radius: 7px; background: #f3f7f9; text-align: center; }
     .environment-item span { display: block; color: var(--muted); font-size: 7px; font-weight: 800; }
     .environment-item b { display: block; margin-top: 1px; overflow: hidden; color: var(--navy-900); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
@@ -1142,11 +1143,13 @@
           const position = await getCurrentPosition();
           const nearest = findNearestRegion(position.coords.latitude, position.coords.longitude);
           nearestRegion = nearest.region;
+          const nearestItem = areaWeatherRows.find(item => item.region === nearestRegion);
+          if (nearestItem) setActiveRiskFilter(riskFilterForItem(nearestItem), true);
           renderAreaDashboard();
           $('#locationText').innerHTML = `현재 위치 기준 <strong>${nearest.region}</strong> 관할을 먼저 표시합니다. <small>(약 ${nearest.distance.toFixed(1)}km)</small>`;
           $('#locationBanner').classList.add('show');
           $('#regionList').scrollTop = 0;
-          if (showError) showToast(`${nearest.region} 관할을 우선 표시했습니다.`);
+          if (showError) showToast(`${nearest.region} 관할을 해당 안전단계에서 우선 표시했습니다.`);
         } catch (error) {
           if (showError) showToast(error.code === 1 ? '위치 권한을 허용해 주세요.' : '현재 위치를 확인할 수 없습니다.');
         } finally { button.disabled = false; button.textContent = '내 위치 우선'; }
@@ -1198,6 +1201,22 @@
       }
 
       function isCaution(risk) { return /주의|위험|경고|심각/.test(risk); }
+
+      function riskFilterForItem(item) {
+        const risk = displayRisk(item);
+        if (isCaution(risk)) return '주의';
+        if (risk.includes('관심')) return '관심';
+        if (risk.includes('안전')) return '안전';
+        return 'all';
+      }
+
+      function setActiveRiskFilter(filter, chosenByUser = false) {
+        activeRiskFilter = filter;
+        riskFilterChosenByUser = chosenByUser;
+        document.querySelectorAll('[data-risk-filter]').forEach(button =>
+          button.classList.toggle('active', button.dataset.riskFilter === activeRiskFilter)
+        );
+      }
 
       function hasWave(item) {
         return item.wave !== null && item.wave !== '' && Number.isFinite(Number(item.wave));
@@ -1409,9 +1428,7 @@
       }
 
       document.querySelectorAll('[data-risk-filter]').forEach(button => button.addEventListener('click', () => {
-        riskFilterChosenByUser = true;
-        activeRiskFilter = button.dataset.riskFilter;
-        document.querySelectorAll('[data-risk-filter]').forEach(item => item.classList.toggle('active', item === button));
+        setActiveRiskFilter(button.dataset.riskFilter, true);
         renderAreaDashboard();
       }));
       $('#refreshDashboard').addEventListener('click', () => loadAreaDashboard(true));
