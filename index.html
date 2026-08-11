@@ -225,12 +225,17 @@
       background: #edf3f6; color: var(--navy-900); cursor: pointer; font-size: 23px; line-height: 1;
     }
     .modal-body { padding: 24px; }
-    .embedded-form { width: 100%; height: 590px; border: 0; border-radius: 12px; }
+    .embedded-form { width: 100%; height: min(680px, calc(100vh - 170px)); min-height: 520px; border: 0; border-radius: 12px; background: #f5f5f5; }
     .helper-note { margin: 0 0 20px; padding: 13px 15px; border-radius: 12px; background: #eef8fd; color: #315d76; font-size: 12px; }
     .helper-location-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
     .helper-location-btn { min-height: 47px; padding: 0 13px; border: 0; border-radius: 11px; background: var(--blue-600); color: #fff; cursor: pointer; font-size: 11px; font-weight: 850; white-space: nowrap; }
     .helper-location-btn:disabled { opacity: .62; cursor: wait; }
     .inspector-help { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .inspector-search { position: relative; }
+    .inspector-results { max-height: 190px; margin-top: 7px; overflow-y: auto; border: 1px solid var(--line); border-radius: 11px; background: #fff; box-shadow: 0 8px 22px rgba(6,31,51,.09); }
+    .inspector-result { display: block; width: 100%; min-height: 44px; padding: 9px 13px; border: 0; border-bottom: 1px solid #edf1f3; background: #fff; color: var(--navy-900); cursor: pointer; text-align: left; font: inherit; font-size: 13px; font-weight: 750; }
+    .inspector-result:last-child { border-bottom: 0; }
+    .inspector-result:hover, .inspector-result:focus-visible { outline: 0; background: #eef8fd; color: var(--blue-600); }
     .measure-grid { display: grid; grid-template-columns: 1fr; gap: 6px; }
     .form-group label.measure-option { display: flex; align-items: center; justify-content: flex-start; gap: 10px; min-height: 44px; margin: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: #f9fbfc; color: #405461; font-size: 12px; font-weight: 700; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
     .form-group label.measure-option:hover { border-color: #9fcbe1; background: #f2faff; }
@@ -245,6 +250,13 @@
     .prefilled-toolbar p { margin: 0; color: var(--muted); font-size: 11px; }
     .back-helper-btn { min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--navy-900); cursor: pointer; font-size: 11px; font-weight: 800; }
     .google-form-link { display: inline-flex; min-height: 38px; align-items: center; padding: 0 12px; border-radius: 9px; background: var(--blue-600); color: #fff; text-decoration: none; font-size: 11px; font-weight: 800; }
+    .report-summary { display: grid; gap: 9px; margin: 15px 0; }
+    .review-row { display: grid; grid-template-columns: 104px 1fr; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 11px; background: #f8fafb; font-size: 12px; }
+    .review-row dt { color: var(--muted); font-weight: 800; }
+    .review-row dd { margin: 0; color: var(--navy-900); font-weight: 750; white-space: pre-line; word-break: keep-all; }
+    .submit-confirm { display: flex; align-items: flex-start; gap: 9px; margin: 16px 0 10px; padding: 13px 14px; border-radius: 11px; background: #fff7e9; color: #755000; cursor: pointer; font-size: 12px; line-height: 1.5; }
+    .submit-confirm input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 1px; accent-color: var(--blue-600); }
+    .submission-success { margin-top: 14px; padding: 16px; border: 1px solid #b9e2ce; border-radius: 12px; background: #eefaf4; color: var(--green-600); font-size: 13px; font-weight: 800; text-align: center; }
 
     .form-intro { margin: 0 0 22px; padding: 14px 16px; border-radius: 12px; background: var(--red-50); color: #8f3535; font-size: 13px; }
     .manager-alert { padding: 30px 26px 12px; text-align: center; }
@@ -428,6 +440,7 @@
       .modal { padding: 0; align-items: stretch; }
       .modal-panel, .modal-panel.wide { width: 100%; max-height: 100vh; border-radius: 0; }
       .modal-head { padding: 16px 18px; }
+      .embedded-form { height: calc(100vh - 124px); min-height: 460px; border-radius: 0; }
       .modal-body { padding: 20px 18px; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: auto; }
@@ -586,7 +599,7 @@
       </div>
       <div class="modal-body">
         <form id="normalReportHelper">
-          <p class="helper-note">아래 내용을 자유롭게 수정한 뒤 구글폼으로 이동하세요. 최종 제출은 작성자가 구글폼에서 직접 눌러야 합니다.</p>
+          <p class="helper-note">아래 내용을 확인·수정한 뒤 구글폼을 여세요. 입력값이 자동으로 채워진 구글폼에서 작성자가 내용을 확인하고 직접 제출합니다.</p>
           <div class="form-grid">
             <div class="form-group"><label for="helperDate">작업 일시</label><input type="datetime-local" id="helperDate" required></div>
             <div class="form-group"><label for="helperTemp">현재 체감온도</label>
@@ -599,7 +612,10 @@
             <div class="form-group full"><label for="helperPlaceDetail">상세 작업 장소</label><input id="helperPlaceDetail" placeholder="예: 본관 옥상, 지하 기계실" required></div>
             <div class="form-group full">
               <label for="helperInspector">무선국 검사관</label>
-              <input id="helperInspector" list="inspectorList" autocomplete="off" placeholder="이름 일부를 입력해 검색하세요" required>
+              <div class="inspector-search">
+                <input id="helperInspector" autocomplete="off" inputmode="search" aria-autocomplete="list" aria-controls="inspectorResults" placeholder="이름 일부를 입력해 검색하세요" required>
+                <div class="inspector-results" id="inspectorResults" role="listbox" aria-label="검사관 검색 결과" hidden></div>
+              </div>
               <small class="inspector-help" id="inspectorHelp">이름을 한두 글자 입력하면 일치하는 검사관만 표시됩니다.</small>
               <datalist id="inspectorList">
                 <option value="한병희"><option value="김일우"><option value="이성중"><option value="김명규"><option value="정민성"><option value="유상인"><option value="박기환"><option value="하승기"><option value="김창훈"><option value="강세훈">
@@ -618,11 +634,11 @@
               </div>
             </fieldset>
           </div>
-          <div class="helper-submit"><button class="primary-btn" type="button" id="openPrefilledForm">구글폼에서 확인하고 직접 제출</button><div class="helper-validation" id="helperValidation" role="alert"></div></div>
+          <div class="helper-submit"><button class="primary-btn" type="button" id="openPrefilledForm">구글폼에서 자동작성 확인</button><div class="helper-validation" id="helperValidation" role="alert"></div></div>
         </form>
         <div id="prefilledFormWrap" hidden>
-          <div class="prefilled-toolbar"><p>내용을 확인한 뒤 구글폼의 제출 버튼을 직접 눌러 주세요.</p><div style="display:flex;gap:7px"><button class="back-helper-btn" type="button" id="backToHelper">다시 수정</button><a class="google-form-link" id="openGoogleFormNewTab" target="_blank" rel="noopener">새 창으로 열기</a></div></div>
-          <iframe class="embedded-form" id="normalPrefilledFrame" title="미리 채워진 안전점검 Google Form"></iframe>
+          <div class="prefilled-toolbar"><p>자동작성된 내용을 확인하고 구글폼의 제출 버튼을 직접 눌러 주세요.</p><button class="back-helper-btn" type="button" id="backToHelper">도우미로 돌아가기</button></div>
+          <iframe class="embedded-form" id="normalPrefilledFrame" title="자동작성된 안전점검 Google Form"></iframe>
         </div>
       </div>
     </div>
@@ -978,9 +994,36 @@
         } catch (error) { /* 저장 불가 환경에서는 이번 작성만 유지 */ }
       }
 
+      function inspectorNames() {
+        return [...$('#inspectorList').options].map(option => option.value);
+      }
+
+      function renderInspectorResults(query = '') {
+        const results = $('#inspectorResults');
+        const keyword = query.trim().toLocaleLowerCase('ko-KR');
+        const matches = inspectorNames().filter(name => !keyword || name.toLocaleLowerCase('ko-KR').includes(keyword));
+        results.replaceChildren();
+        matches.forEach(name => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'inspector-result';
+          button.setAttribute('role', 'option');
+          button.textContent = name;
+          button.addEventListener('click', () => {
+            $('#helperInspector').value = name;
+            $('#helperInspector').setCustomValidity('');
+            $('#inspectorHelp').textContent = `${name} 검사관을 선택했습니다.`;
+            results.hidden = true;
+          });
+          results.append(button);
+        });
+        results.hidden = matches.length === 0;
+      }
+
       function prepareNormalHelper() {
         $('#normalReportHelper').hidden = false;
         $('#prefilledFormWrap').hidden = true;
+        $('#inspectorResults').hidden = true;
         $('#helperValidation').textContent = '';
         $('#helperValidation').classList.remove('success');
         if (!$('#helperDate').value) $('#helperDate').value = localDateTimeValue();
@@ -992,7 +1035,7 @@
         }
         applyRememberedInspector(nearestRegion || '');
         updateRecommendedMeasures();
-        if (!$('#helperAddress').value) setTimeout(() => fillHelperFromLocation(false), 0);
+        if (!$('#helperAddress').value) fillHelperFromLocation(false);
       }
 
       async function fillHelperFromLocation(showMessage = true) {
@@ -1202,7 +1245,14 @@
       });
 
       $('#helperTemp').addEventListener('change', updateRecommendedMeasures);
-      $('#helperInspector').addEventListener('input', event => event.target.setCustomValidity(''));
+      $('#helperInspector').addEventListener('focus', event => renderInspectorResults(event.target.value));
+      $('#helperInspector').addEventListener('input', event => {
+        event.target.setCustomValidity('');
+        renderInspectorResults(event.target.value);
+      });
+      document.addEventListener('click', event => {
+        if (!event.target.closest('.inspector-search')) $('#inspectorResults').hidden = true;
+      });
       $('#helperLoadAddress').addEventListener('click', () => fillHelperFromLocation(true));
 
       $('#openPrefilledForm').addEventListener('click', () => {
@@ -1227,23 +1277,26 @@
           validation.textContent = '체감온도에 맞는 의무 조치사항을 한 개 이상 선택해 주세요.';
           return;
         }
+        const [datePart, timePart] = $('#helperDate').value.split('T');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hour, minute] = timePart.split(':').map(Number);
         const params = new URLSearchParams();
-        const work = googleFormDateTime($('#helperDate').value);
         params.set('embedded', 'true');
         params.set('usp', 'pp_url');
-        params.set('entry.873513013', work.date);
-        params.set('entry.873513013_hour', work.hour);
-        params.set('entry.873513013_minute', work.minute);
-        params.set('entry.873513013_am_pm', work.ampm);
+        params.set('entry.873513013_year', year);
+        params.set('entry.873513013_month', month);
+        params.set('entry.873513013_day', day);
+        params.set('entry.873513013_hour', hour);
+        params.set('entry.873513013_minute', pad(minute));
         params.set('entry.2010181444', `${$('#helperAddress').value.trim()} ${$('#helperPlaceDetail').value.trim()}`.trim());
-        params.set('entry.610365475', inspector);
-        params.set('entry.1418885018', $('#helperTemp').value);
+        params.append('entry.610365475', inspector);
+        params.append('entry.1418885018', $('#helperTemp').value);
         selectedMeasures.forEach(check => params.append('entry.2051367211', check.value));
-        const prefilledUrl = `https://docs.google.com/forms/d/e/1FAIpQLSd8AuubP42gHrdXWhgpGr5uS-HOg8sOL_LJ5IFjRkmQlMrLHQ/viewform?${params}`;
+        const prefilledUrl = `https://docs.google.com/forms/d/e/1FAIpQLSd8AuubP42gHrdXWhgpGr5uS-HOg8sOL_LJ5IFjRkmQlMrLHQ/viewform?${params.toString()}`;
         $('#normalPrefilledFrame').src = prefilledUrl;
-        $('#openGoogleFormNewTab').href = prefilledUrl.replace('embedded=true&', '');
         $('#normalReportHelper').hidden = true;
         $('#prefilledFormWrap').hidden = false;
+        showToast('홈페이지 안에 자동작성된 구글폼을 열었습니다.');
       });
 
       $('#backToHelper').addEventListener('click', () => {
