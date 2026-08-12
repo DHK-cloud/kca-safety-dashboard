@@ -1387,8 +1387,8 @@
             region: findColumn(['지역명'], 1),
             current: findColumn(['현재시간 예보기온(°C)', '현재기온(°C)', '현재기온'], 2),
             currentApparent: findColumn(['현재시간 예보체감(°C)', '현재 체감(°C)', '현재체감온도(°C)'], 3),
-            todayMax: findColumn(['오늘 최고(°C)', '오늘 최고기온(°C)', '최고기온(°C)'], 4),
-            todayMaxApparent: findColumn(['오늘 최고 체감(°C)', '오늘 최고체감온도(°C)', '최고체감온도(°C)'], 5),
+            todayMax: findColumn(['24시간 최고(°C)', '오늘 최고(°C)', '오늘 최고기온(°C)', '최고기온(°C)'], 4),
+            todayMaxApparent: findColumn(['24시간 최고 체감(°C)', '오늘 최고 체감(°C)', '오늘 최고체감온도(°C)', '최고체감온도(°C)'], 5),
             humidity: findColumn(['현재시간 습도(%)', '습도(%)'], 6),
             wind: findColumn(['현재시간 풍속(m/s)', '풍속(m/s)'], 7),
             wave: findColumn(['현재시간 파고(m)', '현재 파고(m)', '파고(m)'], 8),
@@ -1396,7 +1396,7 @@
             risk: findColumn(['대응단계', '위험단계', '폭염 대응단계(참고)', '폭염 대응단계'], 10)
           };
           areaWeatherRows = parsed.slice(1).map(row => ({
-            collected: '현황판 1시간 갱신자료',
+            collected: '현황판 15분 갱신자료',
             region: String(row[columns.region] || '').trim(),
             current: toNumber(row[columns.current]),
             currentApparent: toNumber(row[columns.currentApparent]),
